@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CC-PRICI - Helpdesk & Signalement de Pannes</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="frontend/src/css/style.css">
+</head>
+<body>
+
+    <!-- ENTÊTE & NAVIGATION -->
+    <header class="main-header">
+        <div class="logo-container">
+            <i class="fa-solid fa-headset logo-icon"></i>
+            <div>
+                <h1>CC-PRICI</h1>
+                <p>Plateforme de Support & Support Informatique</p>
+            </div>
+        </div>
+        
+        <nav id="user-nav" class="hidden">
+            <span id="welcome-message"></span>
+            <button id="btn-toggle-tech" class="btn btn-outline hidden">
+                <i class="fa-solid fa-user-gear"></i> Espace Technicien
+            </button>
+            <button id="btn-logout" class="btn btn-danger">
+                <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+            </button>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <!-- ========================================== -->
+        <!-- 1. ÉCRAN D'AUTHENTIFICATION                -->
+        <!-- ========================================== -->
+        <section id="auth-section" class="view-section">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button id="tab-login-btn" class="tab-btn active" onclick="switchAuthTab('login')">Connexion</button>
+                    <button id="tab-register-btn" class="tab-btn" onclick="switchAuthTab('register')">Inscription</button>
+                </div>
+
+                <!-- Formulaire de Connexion -->
+                <form id="form-login" class="auth-form">
+                    <h2>Se connecter</h2>
+                    
+                    <div class="form-group">
+                        <label>Profil utilisateur :</label>
+                        <div class="role-selector">
+                            <label class="role-option">
+                                <input type="radio" name="login-role" value="user" checked>
+                                <span class="role-btn"><i class="fa-solid fa-user"></i> Signalant</span>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="login-role" value="tech">
+                                <span class="role-btn"><i class="fa-solid fa-user-gear"></i> Technicien</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-email">Adresse e-mail professionnelle</label>
+                        <input type="email" id="login-email" placeholder="exemple@prici.ci" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Mot de passe</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+
+                    <div class="form-actions-link">
+                        <a href="#" onclick="openForgotModal(event)">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Se connecter</button>
+                </form>
+
+                <!-- Formulaire d'Inscription -->
+                <form id="form-register" class="auth-form hidden">
+                    <h2>Créer un compte</h2>
+                    <p class="form-help">Réservé au personnel CC-PRICI (adresse @prici.ci obligatoire).</p>
+                    
+                    <div class="form-group">
+                        <label for="reg-name">Nom & Prénoms</label>
+                        <input type="text" id="reg-name" placeholder="Ex: Jean Marc" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">E-mail professionnel</label>
+                        <input type="email" id="reg-email" placeholder="nom@prici.ci" required>
+                        <small id="email-error" class="error-text hidden">L'adresse doit obligatoirement se terminer par @prici.ci</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-office">Bureau / Service</label>
+                        <input type="text" id="reg-office" placeholder="Ex: Bureau 102 - Direction Technique" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-role">Rôle attribué</label>
+                        <select id="reg-role">
+                            <option value="user">Utilisateur (Signalant)</option>
+                            <option value="tech">Technicien Informatique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Mot de passe</label>
+                        <input type="password" id="reg-password" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 2. ESPACE SIGNALANT (UTILISATEUR)          -->
+        <!-- ========================================== -->
+        <section id="user-section" class="view-section hidden">
+            <div class="section-title">
+                <h2>Signalement d'un problème informatique</h2>
+                <p>Sélectionnez le type de panne rencontré pour obtenir des solutions rapides.</p>
+            </div>
+
+            <!-- Grille de sélection des pannes -->
+            <div class="pannes-grid">
+                <div class="panne-card" onclick="selectPanne('network', 'Câble Réseau Déconnecté / Endommagé')">
+                    <i class="fa-solid fa-network-wired panne-icon"></i>
+                    <h3>Câble Réseau</h3>
+                    <p>Problème de liaison physique, câble débranché ou abîmé.</p>
+                </div>
+                <div class="panne-card" onclick="selectPanne('internet', 'Coupure ou Lenteur d Internet')">
+                    <i class="fa-solid fa-wifi panne-icon"></i>
+                    <h3>Coupure Internet</h3>
+                    <p>Accès Web indisponible, Wi-Fi déconnecté ou pas de réseau.</p>
+                </div>
+                <div class="panne-card" onclick="selectPanne('peripheral', 'Périphérique Déconnecté / Inaccessible')">
+                    <i class="fa-solid fa-keyboard panne-icon"></i>
+                    <h3>Périphérique</h3>
+                    <p>Clavier, souris, écran ou clé USB non détecté.</p>
+                </div>
+                <div class="panne-card" onclick="selectPanne('printer', 'Imprimante en Panne / Bourrage')">
+                    <i class="fa-solid fa-print panne-icon"></i>
+                    <h3>Imprimante</h3>
+                    <p>Impression bloquée, bourrage papier, hors ligne.</p>
+                </div>
+            </div>
+
+            <!-- Auto-Dépannage (Support N0) -->
+            <div id="suggestions-box" class="card suggestion-card hidden">
+                <div class="suggestion-header">
+                    <i class="fa-solid fa-lightbulb icon-warn"></i>
+                    <h3 id="suggestion-title">Auto-Dépannage suggéré</h3>
+                </div>
+                <div id="suggestion-content" class="suggestion-body"></div>
+                <div class="suggestion-actions">
+                    <button class="btn btn-success" onclick="resolveWithSuggestion()">
+                        <i class="fa-solid fa-check"></i> Problème résolu !
+                    </button>
+                    <button class="btn btn-warning" onclick="showTicketForm()">
+                        <i class="fa-solid fa-xmark"></i> Non, signaler au technicien
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulaire de création de ticket -->
+            <div id="ticket-form-card" class="card hidden">
+                <h3>Transmettre la demande au support technique</h3>
+                <form id="form-create-ticket">
+                    <div class="form-group">
+                        <label>Catégorie sélectionnée</label>
+                        <input type="text" id="ticket-category" readonly>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ticket-pc-name">Nom du PC / Poste de travail</label>
+                            <input type="text" id="ticket-pc-name" placeholder="Ex: PC-DIR-04" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-urgency">Niveau d'urgence</label>
+                            <select id="ticket-urgency">
+                                <option value="Faible">Faible (Travail non bloqué)</option>
+                                <option value="Moyenne" selected>Moyenne (Gêne importante)</option>
+                                <option value="Critique">Critique (Travail totalement bloqué)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket-prediag">Pré-diagnostic automatique</label>
+                        <input type="text" id="ticket-prediag" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket-description">Détails complémentaires sur la panne</label>
+                        <textarea id="ticket-description" rows="4" placeholder="Décrivez ce qui se passe..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+                </form>
+            </div>
+
+            <!-- Historique des tickets -->
+            <div class="tickets-history-container card">
+                <h3>Mes signalements récents</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Catégorie</th>
+                                <th>Urgence</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-tickets-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 3. TABLEAU DE BORD TECHNICIEN              -->
+        <!-- ========================================== -->
+        <section id="tech-section" class="view-section hidden">
+            <div class="section-title">
+                <h2>Tableau de Bord Technicien</h2>
+                <p>Gestion et résolution des incidents informatiques signalés.</p>
+            </div>
+
+            <!-- Métriques -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="stat-total">0</span>
+                    <span class="stat-label">Total Incidents</span>
+                </div>
+                <div class="stat-card stat-new">
+                    <span class="stat-number" id="stat-new">0</span>
+                    <span class="stat-label">Nouveaux</span>
+                </div>
+                <div class="stat-card stat-progress">
+                    <span class="stat-number" id="stat-progress">0</span>
+                    <span class="stat-label">En cours</span>
+                </div>
+                <div class="stat-card stat-done">
+                    <span class="stat-number" id="stat-done">0</span>
+                    <span class="stat-label">Résolus</span>
+                </div>
+            </div>
+
+            <!-- Filtres et Exportation CSV -->
+            <div class="filters-bar card">
+                <div class="filter-group">
+                    <label for="filter-status"><i class="fa-solid fa-filter"></i> Filtrer par statut :</label>
+                    <select id="filter-status" onchange="renderTechTickets()">
+                        <option value="ALL">Tous les tickets</option>
+                        <option value="Nouveau">Nouveau</option>
+                        <option value="En cours">En cours</option>
+                        <option value="Résolu">Résolu</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline" onclick="exportTicketsCSV()">
+                    <i class="fa-solid fa-file-csv"></i> Exporter en CSV
+                </button>
+            </div>
+
+            <!-- Table globale des tickets -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Demandeur</th>
+                                <th>Bureau / PC</th>
+                                <th>Catégorie & Pré-diagnostic</th>
+                                <th>Urgence</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tech-tickets-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALE MOT DE PASSE OUBLIÉ -->
+    <div id="modal-forgot" class="modal-overlay hidden">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeForgotModal()">&times;</button>
+            <h2>Réinitialiser le mot de passe</h2>
+            <p class="form-help">Saisissez votre e-mail professionnel et votre nouveau mot de passe.</p>
+            
+            <form id="form-forgot">
+                <div class="form-group">
+                    <label for="forgot-email">E-mail professionnel</label>
+                    <input type="email" id="forgot-email" placeholder="nom@prici.ci" required>
+                </div>
+                <div class="form-group">
+                    <label for="forgot-new-password">Nouveau mot de passe</label>
+                    <input type="password" id="forgot-new-password" placeholder="6 caractères min." minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Enregistrer le mot de passe</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="frontend/src/js/app.js"></script>
+</body>
+</html>
